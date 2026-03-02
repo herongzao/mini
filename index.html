@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>迷你產品</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        button {
+            background: #3ecf8e;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #2bb879;
+        }
+
+        button:active {
+            background: #249e68;
+        }
+
+        table {
+            margin-top: 24px;
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #1a1a2e;
+            color: white;
+            font-weight: 600;
+        }
+
+        td:first-child {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .error {
+            margin-top: 16px;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button onclick="fetchRecord()">數據庫第一條記錄</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://vyyyzuyifsdscwzogqfu.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_jJaHOG5nvVNdKoxBsgaWbw_KEegRgsU';
+
+        async function fetchRecord() {
+            const result = document.getElementById('result');
+            result.innerHTML = '載入中...';
+
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/mini?select=*&limit=1`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    result.innerHTML = '<p>表裡沒有數據</p>';
+                    return;
+                }
+
+                const record = data[0];
+                let html = '<table><tr><th>字段</th><th>值</th></tr>';
+
+                for (const [key, value] of Object.entries(record)) {
+                    html += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                }
+
+                html += '</table>';
+                result.innerHTML = html;
+
+            } catch (err) {
+                result.innerHTML = `<p class="error">出錯了：${err.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
